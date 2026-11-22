@@ -1,0 +1,25 @@
+{
+  "name": "eevee-cloudflare-backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "tsc --noEmit",
+    "migrate:local": "wrangler d1 migrations apply d1-eevee --local",
+    "migrate:remote": "wrangler d1 migrations apply d1-eevee --remote",
+    "setup:local": "node scripts/setup-local.mjs",
+    "verify:elevenlabs": "node scripts/verify-elevenlabs.mjs",
+    "secrets:upload": "node scripts/upload-secrets.mjs",
+    "connect:maritime": "node scripts/connect-maritime.mjs",
+    "package:maritime": "python3 scripts/package-maritime.py",
+    "test": "node --test --test-isolation=none ../tests/mock-backend.mjs ../tests/elevenlabs-adapter.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "latest",
+    "typescript": "^5.9.3",
+    "wrangler": "latest"
+  }
+}

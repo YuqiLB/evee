@@ -9,14 +9,17 @@ export async function startSession(_args, context) {
   if (!agentId) throw httpError(400, 'ELEVENLABS_AGENT_ID is not set in .env.server')
 
   const session = await context.entities.Session.create({ data: {} })
+  // Where the browser opens the eevee backend's transcript WebSocket (it carries
+  // its own short-lived token, so no key is needed). Null when no backend is set.
+  const streamBase = process.env.EEVEE_API_KEY && process.env.EEVEE_API_URL?.replace(/^http/, 'ws') || null
 
-  if (!apiKey) return { sessionId: session.id, agentId }
+  if (!apiKey) return { sessionId: session.id, agentId, streamBase }
 
   const url = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`
   const res = await fetch(url, { headers: { 'xi-api-key': apiKey } })
   if (!res.ok) throw httpError(502, `ElevenLabs signed URL failed (${res.status})`)
   const { signed_url } = await res.json()
-  return { sessionId: session.id, signedUrl: signed_url }
+  return { sessionId: session.id, signedUrl: signed_url, streamBase }
 }
 
 // Persists what the browser collected during the pitch. Creates the row if the

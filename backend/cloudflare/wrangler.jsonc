@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "eevee",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-22",
+  "d1_databases": [
+    { "binding": "DB", "database_name": "d1-eevee", "database_id": "1447a9a7-19ca-476c-b5da-5a8aca1a34c0", "migrations_dir": "migrations" }
+  ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "r2-eevee" }],
+  "queues": {
+    "producers": [{ "binding": "JOBS", "queue": "queue-eevee" }],
+    "consumers": [{ "queue": "queue-eevee", "dead_letter_queue": "queue-eevee-dlq", "max_batch_size": 1, "max_retries": 3 }]
+  },
+  "durable_objects": { "bindings": [{ "name": "SESSIONS", "class_name": "SessionHub" }] },
+  "exports": { "SessionHub": { "type": "durable-object", "storage": "sqlite" } },
+  "vars": {
+    "MARITIME_ORIGIN": "https://df0f827c-db0e-4f9e-a185-6f043501fd13.mtm.sh",
+    "API_ORIGIN": "https://eevee.yyznate.workers.dev",
+    "USE_MOCK_AI": "false"
+  },
+  "observability": { "enabled": true }
+}

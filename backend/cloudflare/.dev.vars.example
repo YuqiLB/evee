@@ -1,0 +1,8 @@
+# Copy to .dev.vars for LOCAL use only; never commit .dev.vars.
+# All values here are placeholders, not real credentials.
+APP_API_KEY=replace-with-local-secret
+STREAM_SIGNING_KEY=replace-with-long-local-secret
+MARITIME_SERVICE_TOKEN=replace-with-independent-maritime-secret
+INTERNAL_SERVICE_TOKEN=replace-with-independent-callback-secret
+ELEVENLABS_API_KEY=replace-with-elevenlabs-key
+ELEVENLABS_AGENT_ID=replace-with-agent-id

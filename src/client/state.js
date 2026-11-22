@@ -18,6 +18,11 @@ const initial = {
   summary: '',
   toastAt: 0, // timestamp of the last "Noted for follow-up"
   sensitivity: 'normal', // 'calm' | 'normal' | 'lively', see lib/sensitivity.js
+  // eevee backend, see lib/backend.js
+  backend: 'unknown', // 'unknown' | 'off' (not configured on the server)
+  datasetId: null, // the uploaded files, as a backend dataset
+  backendLive: false, // transcript stream open: slides come from the backend
+  backendSummary: false, // summary came from the backend (the agent's is then ignored)
 }
 
 let state = initial
@@ -35,7 +40,8 @@ export const store = {
   },
   // New pitch: clear session data, keep the uploaded material and the sensitivity.
   reset() {
-    store.setState({ ...initial, files: state.files, facts: state.facts, chunks: state.chunks, images: state.images, sensitivity: state.sensitivity })
+    const { files, facts, chunks, images, sensitivity, backend, datasetId } = state
+    store.setState({ ...initial, files, facts, chunks, images, sensitivity, backend, datasetId })
   },
 }
 

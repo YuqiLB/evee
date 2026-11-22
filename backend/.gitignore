@@ -1,0 +1,16 @@
+**/.dev.vars
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.server.example
+**/.dev.vars.*
+!**/.dev.vars.example
+**/.env.server
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/node_modules/
+**/.wrangler/
+**/.DS_Store
+*.zip
+*.orig

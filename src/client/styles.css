@@ -1004,6 +1004,7 @@ a {
 .draft p {
   margin: 0;
   max-width: 65ch;
+  white-space: pre-line; /* the backend summary has key points on their own lines */
 }
 
 .status-line {

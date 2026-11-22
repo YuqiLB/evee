@@ -17,6 +17,31 @@ const context = { entities: { Session: prisma.session } }
 const actions = { startSession, saveSession, draftFollowup, sendFollowup }
 
 const app = express()
+
+// eevee backend (Cloudflare Worker, backend/cloudflare): /api/eevee/<path> -> EEVEE_API_URL/v1/<path>.
+// The app key is added here so it never reaches the browser. Registered before
+// express.json so file uploads arrive as raw bytes; the Worker needs Content-Length,
+// which fetch sets from a Buffer body.
+app.use('/api/eevee', express.raw({ type: () => true, limit: '13mb' }), async (req, res) => {
+  const { EEVEE_API_URL, EEVEE_API_KEY } = process.env
+  if (!EEVEE_API_URL || !EEVEE_API_KEY) return res.status(503).json({ error: 'backend not configured' })
+  const headers = { Authorization: `Bearer ${EEVEE_API_KEY}` }
+  for (const h of ['content-type', 'x-filename']) if (req.headers[h]) headers[h] = req.headers[h]
+  try {
+    const upstream = await fetch(`${EEVEE_API_URL}/v1${req.url}`, {
+      method: req.method,
+      headers,
+      body: Buffer.isBuffer(req.body) && req.body.length ? req.body : undefined,
+    })
+    res.status(upstream.status)
+    for (const h of ['content-type', 'cache-control']) if (upstream.headers.has(h)) res.set(h, upstream.headers.get(h))
+    res.send(Buffer.from(await upstream.arrayBuffer()))
+  } catch (err) {
+    console.error('[eevee proxy]', err)
+    res.status(502).json({ error: 'backend unreachable' })
+  }
+})
+
 app.use(express.json({ limit: '5mb' }))
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }))

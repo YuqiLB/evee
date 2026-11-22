@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "event_id": "evt-002",
+  "type": "transcript.partial",
+  "session_id": "REPLACE_WITH_SESSION_ID",
+  "seq": 2,
+  "payload": {
+    "segment_id": "seg-002",
+    "revision": 1,
+    "text": "I think the main challenge is lithium pricing",
+    "speaker_id": "speaker-1"
+  }
+}

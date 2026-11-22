@@ -4,6 +4,7 @@ import { SlideStage } from '../components/Slide.jsx'
 import { Toast } from '../components/Toast.jsx'
 import { Eyes } from '../components/Eyes.jsx'
 import { LEVEL_IDS } from '../lib/sensitivity.js'
+import { endBackend } from '../lib/backend.js'
 
 const MIC_ERROR = '[mic error message]'
 const AGENT_ERROR = '[agent error message]'
@@ -17,7 +18,8 @@ export function Pitch({ agent }) {
   const started = useRef(false)
 
   const slide = slides[slides.length - 1] ?? null
-  const image = slide?.imageId ? images.find((i) => i.id === slide.imageId) : null
+  // Backend cards carry their own image; agent slides point at an uploaded one.
+  const image = slide?.image ?? (slide?.imageId ? images.find((i) => i.id === slide.imageId) : null)
   const coverImage = images.find((i) => i.page === 1 && i.kind === 'pdf') ?? null
 
   async function connect() {
@@ -46,6 +48,7 @@ export function Pitch({ agent }) {
   }, [agent.status, agent.message])
 
   function end() {
+    endBackend() // summary lands in the store later; Follow-up redrafts when it does
     store.setState({ screen: 'followup' })
   }
 

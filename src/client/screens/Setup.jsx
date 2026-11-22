@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { store, useStore } from '../state.js'
 import { addToPack, extractFile, isSupported, factsChunks } from '../lib/context.js'
+import { ingestFacts, ingestFiles } from '../lib/backend.js'
 
 const FILE_ERROR = 'Unsupported file'
 
@@ -16,6 +17,7 @@ export function Setup() {
   const ready = !loading && (files.some((f) => f.status === 'ok') || facts.trim().length > 0)
 
   async function addFiles(list) {
+    const read = [] // files the browser could read; they also go to the backend
     for (const file of Array.from(list)) {
       const key = `${file.name}-${file.size}-${file.lastModified}`
       if (store.getState().files.some((f) => f.key === key)) continue
@@ -30,12 +32,14 @@ export function Setup() {
         const pack = addToPack({ chunks: s.chunks, images: s.images }, extracted)
         store.setState(pack)
         setFile({ key, name: file.name, status: 'ok', meta: summarize(extracted) })
+        read.push(file)
         console.log(`[context] ${file.name}: ${extracted.chunks.length} text chunks, ${extracted.images.length} images (pack: ${pack.chunks.length} chunks, ${pack.images.length} images)`)
       } catch (err) {
         console.warn(`[context] could not read ${file.name}:`, err?.message ?? err)
         setFile({ key, name: file.name, status: 'error', error: FILE_ERROR })
       }
     }
+    if (read.length) ingestFiles(read)
   }
 
   // Starts the zoom into the fog; App switches to the pitch when the zoom ends.
@@ -43,6 +47,7 @@ export function Setup() {
     const s = store.getState()
     if (!ready || s.zooming) return
     console.log(`[context] starting with ${s.chunks.length + factsChunks(s.facts).length} text chunks, ${s.images.length} images`)
+    ingestFacts(s.facts)
     store.setState({ zooming: true })
   }
 
