@@ -47,7 +47,7 @@ export function Setup() {
   return (
     <main className="setup">
       <div
-        className={`dropbox ${drag ? 'drag' : ''}`}
+        className={`glass dropbox ${drag ? 'drag' : ''}`}
         role="button"
         tabIndex={0}
         aria-busy={loading}
@@ -86,13 +86,15 @@ export function Setup() {
         </ul>
       )}
 
-      <textarea
-        className="facts"
-        rows={2}
-        placeholder="[textbox placeholder]"
-        value={facts}
-        onChange={(e) => store.setState({ facts: e.target.value })}
-      />
+      <div className="glass facts-box">
+        <textarea
+          className="facts"
+          rows={1}
+          placeholder="[textbox placeholder]"
+          value={facts}
+          onChange={(e) => store.setState({ facts: e.target.value })}
+        />
+      </div>
 
       {(files.length > 0 || facts.trim()) && (
         <button className="primary" disabled={!ready} onClick={start}>
