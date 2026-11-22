@@ -1,9 +1,10 @@
-// Setup: dropbox + small textbox. Files are read in the browser into the context pack.
+// Setup: mascot on the left + glass dropbox and facts bar on the right.
+// Files are read in the browser into the context pack.
 import { useRef, useState } from 'react'
 import { store, useStore } from '../state.js'
 import { addToPack, extractFile, isSupported, factsChunks } from '../lib/context.js'
 
-const FILE_ERROR = '[file error message]'
+const FILE_ERROR = 'Unsupported file'
 
 export function Setup() {
   const files = useStore((s) => s.files)
@@ -47,66 +48,71 @@ export function Setup() {
 
   return (
     <main className="setup">
-      <div
-        className={`glass dropbox ${drag ? 'drag' : ''}`}
-        role="button"
-        tabIndex={0}
-        aria-busy={loading}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), inputRef.current?.click())}
-        onDragOver={(e) => (e.preventDefault(), setDrag(true))}
-        onDragLeave={() => setDrag(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setDrag(false)
-          addFiles(e.dataTransfer.files)
-        }}
-      >
-        [dropbox prompt]
-        <input
-          ref={inputRef}
-          type="file"
-          multiple
-          hidden
-          accept=".pdf,.txt,.md,.csv,image/png,image/jpeg,image/webp,image/gif"
-          onChange={(e) => {
-            addFiles(e.target.files)
-            e.target.value = ''
-          }}
-        />
-      </div>
+      <img className="setup-mascot" src="/evee-logo.png" alt="evee" draggable={false} />
 
-      {files.length > 0 && (
-        <ul className="file-list">
-          {files.map((f) => (
-            <li key={f.key} className={f.status === 'error' ? 'bad' : ''}>
-              <span>{f.name}</span>
-              <span className="meta">{f.status === 'loading' ? '…' : f.status === 'error' ? f.error : f.meta}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="glass facts-box">
-        <textarea
-          className="facts"
-          rows={1}
-          placeholder="[textbox placeholder]"
-          value={facts}
-          onChange={(e) => store.setState({ facts: e.target.value })}
-          onKeyDown={(e) => {
-            // Enter starts (like sending a message); Shift+Enter adds a line.
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              start()
-            }
+      <div className="setup-stack">
+        <div
+          className={`glass dropbox ${drag ? 'drag' : ''}`}
+          role="button"
+          tabIndex={0}
+          aria-busy={loading}
+          onClick={() => inputRef.current?.click()}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), inputRef.current?.click())}
+          onDragOver={(e) => (e.preventDefault(), setDrag(true))}
+          onDragLeave={() => setDrag(false)}
+          onDrop={(e) => {
+            e.preventDefault()
+            setDrag(false)
+            addFiles(e.dataTransfer.files)
           }}
-        />
-        <button className="send" disabled={!ready} onClick={start} aria-label="[start button label]">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M6 3.5 10.5 8 6 12.5" />
-          </svg>
-        </button>
+        >
+          <span className="dropbox-title">Drop your deck here</span>
+          <span className="dropbox-sub">PDF, plus pricing or FAQ if you have them</span>
+          <input
+            ref={inputRef}
+            type="file"
+            multiple
+            hidden
+            accept=".pdf,.txt,.md,.csv,image/png,image/jpeg,image/webp,image/gif"
+            onChange={(e) => {
+              addFiles(e.target.files)
+              e.target.value = ''
+            }}
+          />
+        </div>
+
+        {files.length > 0 && (
+          <ul className="file-list">
+            {files.map((f) => (
+              <li key={f.key} className={f.status === 'error' ? 'bad' : ''}>
+                <span>{f.name}</span>
+                <span className="meta">{f.status === 'loading' ? '…' : f.status === 'error' ? f.error : f.meta}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="glass facts-box">
+          <textarea
+            className="facts"
+            rows={1}
+            placeholder="Add a fact: pricing is $49/seat"
+            value={facts}
+            onChange={(e) => store.setState({ facts: e.target.value })}
+            onKeyDown={(e) => {
+              // Enter starts (like sending a message); Shift+Enter adds a line.
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                start()
+              }
+            }}
+          />
+          <button className="send" disabled={!ready} onClick={start} aria-label="Start pitch">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 3.5 10.5 8 6 12.5" />
+            </svg>
+          </button>
+        </div>
       </div>
     </main>
   )
@@ -124,7 +130,7 @@ function setFile(entry) {
 
 function summarize({ chunks, images }) {
   const parts = []
-  if (chunks.length) parts.push(`${chunks.length} chunks`)
-  if (images.length) parts.push(`${images.length} images`)
-  return parts.join(' · ') || '0 chunks'
+  if (images.length) parts.push(`${images.length} ${images.length === 1 ? 'slide' : 'slides'}`)
+  else if (chunks.length) parts.push(`${chunks.length} ${chunks.length === 1 ? 'section' : 'sections'}`)
+  return parts.join(' · ') || 'Ready'
 }

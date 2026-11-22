@@ -7,15 +7,17 @@
   --color-fog: #62c1b6;
   --color-fog-light: #98d7cf;
   --color-glow: #cbf3f0;
-  --color-glass: rgba(29, 67, 64, 0.7);
-  --color-line: rgba(255, 255, 255, 0.6);
+  --color-glass: rgba(54, 96, 94, 0.72);
+  --color-line: rgba(255, 255, 255, 0.28);
   --color-text: #ffffff;
-  --color-text-muted: rgba(255, 255, 255, 0.72);
+  --color-text-muted: rgba(255, 255, 255, 0.84);
+  --color-placeholder: rgba(255, 255, 255, 0.44);
+  --color-send: #ff9d21;
   --blur-glass: 20px;
-  --radius-bar: 14px;
-  --width-bar: 420px;
-  --height-bar: 52px;
-  --pad-bar: 24px;
+  --radius-bar: 20px;
+  --width-bar: 560px;
+  --height-bar: 56px;
+  --pad-bar: 22px;
   --size-bar: 15px;
   --size-label: 11px;
   --size-send: 36px;
@@ -186,13 +188,29 @@ a {
   position: relative;
   z-index: 1;
   min-height: 100%;
-  max-width: calc(var(--width-bar) + 2 * var(--s3));
+  max-width: 1160px;
   margin: 0 auto;
-  padding: var(--s5) var(--s3);
+  padding: var(--s5) clamp(28px, 5vw, 56px) var(--s5) clamp(76px, 6vw, 84px);
+  display: grid;
+  grid-template-columns: auto minmax(0, var(--width-bar));
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 5vw, 64px);
+}
+
+.setup-mascot {
+  width: clamp(220px, 31vw, 390px);
+  height: auto;
+  display: block;
+  user-select: none;
+  filter: drop-shadow(0 16px 36px rgba(20, 56, 52, 0.14));
+}
+
+.setup-stack {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--s3);
+  gap: 18px;
 }
 
 .followup {
@@ -271,13 +289,13 @@ a {
 .glass {
   width: 100%;
   max-width: var(--width-bar);
-  margin-inline: auto;
   background: var(--color-glass);
   -webkit-backdrop-filter: blur(var(--blur-glass));
   backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--color-line);
   border-radius: var(--radius-bar);
   color: var(--color-text);
+  box-shadow: 0 12px 32px rgba(16, 44, 42, 0.22);
 }
 
 /* Focus ring on the upload box only; the text box shows just its caret. */
@@ -288,18 +306,19 @@ a {
 }
 
 .dropbox {
-  min-height: 220px;
-  display: grid;
-  place-items: center;
+  min-height: clamp(220px, 33vh, 256px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   text-align: center;
   padding: var(--s4);
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
   cursor: pointer;
+  transition: border-color 160ms var(--ease-out), background-color 160ms var(--ease-out);
 }
 
+.dropbox:hover,
 .dropbox.drag {
   border-color: var(--color-glow);
 }
@@ -308,9 +327,24 @@ a {
   cursor: progress;
 }
 
+.dropbox-title {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+.dropbox-sub {
+  font-size: 14.5px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
 .facts-box {
   height: var(--height-bar);
-  padding: 0 var(--s2) 0 var(--pad-bar);
+  border-radius: 18px;
+  padding: 0 10px 0 var(--pad-bar);
   display: flex;
   align-items: center;
   gap: var(--s2);
@@ -339,10 +373,10 @@ a {
 }
 
 .facts::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-placeholder);
 }
 
-/* Start arrow inside the text box: dim until there is something to pitch. */
+/* Start arrow inside the text box */
 .send {
   flex: none;
   width: var(--size-send);
@@ -352,22 +386,18 @@ a {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: transparent;
-  color: var(--color-text-muted);
-  transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out);
+  background: var(--color-send);
+  color: var(--text);
+  transition: background-color 200ms var(--ease-out), opacity 200ms var(--ease-out), transform 160ms var(--ease-out);
 }
 
 .send:disabled {
   cursor: default;
 }
 
-.send:not(:disabled) {
-  background: var(--brand);
-  color: var(--text);
-}
-
 .send:not(:disabled):hover {
   background: var(--brand-strong);
+  transform: scale(1.04);
 }
 
 .send:focus-visible {
@@ -375,11 +405,11 @@ a {
   outline-offset: 2px;
 }
 
-/* --- File list (sits on the fog) --- */
+/* --- File list (sits between dropbox and facts bar) --- */
 .file-list {
   list-style: none;
   margin: 0;
-  padding: 0 var(--s1);
+  padding: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s2);
@@ -389,27 +419,46 @@ a {
 .file-list li {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: var(--s3);
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: var(--color-glass);
+  border: 1px solid var(--color-line);
+  color: var(--color-text);
 }
 
 .file-list li > span:first-child {
   flex: 1;
   min-width: 0;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .file-list .meta {
-  color: var(--text);
+  color: var(--color-text-muted);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 .file-list .bad .meta {
-  color: var(--error-on-fog);
+  color: #ffd0ca;
   font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .setup {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding: var(--s4) var(--s3) 96px;
+    gap: var(--s4);
+  }
+
+  .setup-mascot {
+    width: 168px;
+  }
 }
 
 /* --- Slide --- */
