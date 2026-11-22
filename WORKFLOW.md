@@ -1,6 +1,6 @@
 # evee: how it works
 
-evee listens to a live pitch. When someone asks a question or the talk moves to a new topic, it composes a slide from the founder's own uploads and shows it within a few seconds. Afterwards it collects the visitor's email and drafts a follow-up from what was asked.
+evee listens to a live pitch. When someone asks a question or the talk moves to a new topic, it composes a slide from the founder's own uploads and shows it within a few seconds. Afterwards the visitor types their email and evee drafts a follow-up from what was asked. evee never speaks; it only acts on screen.
 
 ## The whole system
 
@@ -16,7 +16,7 @@ flowchart LR
     A -->|skip_turn| Q["Stays silent"]
   end
   subgraph After["Follow-up screen"]
-    E["Email and summary"]
+    E["Visitor types email, agent adds a summary"]
     SV["Server saves the session"]
     D["Server drafts the follow-up"]
     AP["Founder approves"]
@@ -65,7 +65,7 @@ Target is under 5 seconds. The server is not in this path.
 | A question the uploads do not answer | "Do you integrate with Salesforce?" | Shows "Noted for follow-up", logs it | `log_followup` |
 | Small talk, half sentences, more on the same topic | "Nice booth!" | Nothing | `skip_turn` |
 | The same slide again within 6 seconds | | Ignored by the browser | none |
-| Founder ends the pitch (End button or Esc) | | evee speaks, asks for the email, spells it back | `capture_email` |
+| Founder ends the pitch (End button or Esc) | | evee stays silent and writes a short summary. The visitor types their email | `capture_email` |
 
 ## Screens
 
@@ -74,7 +74,7 @@ stateDiagram-v2
   [*] --> Setup
   Setup --> Pitch: start, agent session opens
   Pitch --> Pitch: every turn ends in one tool call
-  Pitch --> Followup: End button or Esc, agent asks for the email
+  Pitch --> Followup: End button or Esc, visitor types their email
   Followup --> Sent: founder approves the draft
   Sent --> [*]
 ```
@@ -94,7 +94,7 @@ stateDiagram-v2
 
 | Tool | When | Job | State |
 |---|---|---|---|
-| ElevenLabs Agents | Live | Listens, composes slides, asks for the email | Code done; agent to be created in the dashboard |
+| ElevenLabs Agents | Live | Listens, composes slides, writes the summary. Never speaks | Code done; agent to be created in the dashboard |
 | Alter | After | Holds the follow-up send for approval | Code done; dry run without keys |
 | Resend | After | Delivers the email, called through Alter | Code done |
 | Maritime | After | Would write the follow-up | Not wired; see `PROTOCOL.md` |

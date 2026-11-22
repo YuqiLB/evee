@@ -20,7 +20,8 @@ sequenceDiagram
   C->>E: open session with context_pack
   Note over C,E: Pitch. show_slide and log_followup run in the browser.
   C->>E: "[pitch ended]"
-  E->>C: capture_email(email, summary)
+  E->>C: capture_email(summary)
+  Note over C: Visitor types their email. The agent never speaks.
   C->>S: saveSession
   C->>S: draftFollowup
   S-->>C: draft (Maritime would plug in here)
@@ -60,7 +61,7 @@ type Session = {
     sourceIds: string[];     // ids of the upload chunks it was built from
   }[];
   openQuestions: { question: string; at: string }[];   // asked, not answered by the uploads
-  email: string | null;      // one email per session
+  email: string | null;      // one email per session, typed by the visitor
   summary: string;           // 2 to 3 sentences written by the voice agent at the end
   status: "draft" | "held" | "sent" | "failed";
 };
@@ -147,5 +148,5 @@ All keys live in `.env.server` and never reach the browser. See `.env.server.exa
 
 ## Open items before the demo
 
-- Placeholder copy is still in the code: `[email subject]` and `[email intro]` in `src/server/followup.js`, and `[email request line]` in `agent/prompt.md`.
+- Placeholder copy is still in the code: `[email subject]` and `[email intro]` in `src/server/followup.js`.
 - The ElevenLabs agent has to be created in the dashboard from `agent/prompt.md` and `agent/tools.json`, and its id put in `.env.server`.

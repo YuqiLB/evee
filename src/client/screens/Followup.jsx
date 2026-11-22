@@ -1,4 +1,4 @@
-// Follow-up: the agent asks for the email aloud (or the visitor types it),
+// Follow-up: the visitor types their email (the agent stays silent),
 // the server drafts the email from the session, the founder approves the send.
 import { useEffect, useRef, useState } from 'react'
 import { store, useStore } from '../state.js'
@@ -38,7 +38,7 @@ export function Followup({ agent }) {
   const [result, setResult] = useState(null)
   const asked = useRef(false)
 
-  // Pitch is over: let the agent speak and ask for the email.
+  // Pitch is over: the agent stays silent and hands over its summary (capture_email).
   useEffect(() => {
     if (asked.current) return
     asked.current = true
@@ -94,7 +94,7 @@ export function Followup({ agent }) {
   return (
     <main className="followup">
       <div className="field">
-        <label htmlFor="email">[email label]</label>
+        <label htmlFor="email">What's the best email to send you a follow-up?</label>
         <input
           id="email"
           type="email"
