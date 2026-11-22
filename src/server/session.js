@@ -19,20 +19,21 @@ export async function startSession(_args, context) {
   return { sessionId: session.id, signedUrl: signed_url }
 }
 
-// Persists what the browser collected during the pitch.
+// Persists what the browser collected during the pitch. Creates the row if the
+// agent never connected (e.g. mic denied), so the follow-up still works.
 export async function saveSession(args, context) {
   const { sessionId, transcript, slides, openQuestions, email, summary } = args
-  if (!sessionId) throw httpError(400, 'sessionId required')
-  return context.entities.Session.update({
-    where: { id: sessionId },
-    data: {
-      ...(transcript && { transcript }),
-      ...(slides && { slides }),
-      ...(openQuestions && { openQuestions }),
-      ...(email !== undefined && { email }),
-      ...(summary !== undefined && { summary }),
-    },
-  })
+  const data = {
+    ...(transcript && { transcript }),
+    ...(slides && { slides }),
+    ...(openQuestions && { openQuestions }),
+    ...(email !== undefined && { email: email || null }),
+    ...(summary !== undefined && { summary }),
+  }
+  const saved = sessionId
+    ? await context.entities.Session.update({ where: { id: sessionId }, data })
+    : await context.entities.Session.create({ data })
+  return { sessionId: saved.id }
 }
 
 export function httpError(statusCode, message) {
