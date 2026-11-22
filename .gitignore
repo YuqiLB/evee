@@ -5,3 +5,7 @@ dist
 dev.db
 dev.db-journal
 *.log
+
+# local docs, not shared
+SPEC.md
+LEARNING.md
