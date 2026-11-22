@@ -694,63 +694,187 @@ a {
   background: var(--brand);
 }
 
-/* --- Sensitivity picker (sits on the fog, under the text box) --- */
-.sensitivity {
-  margin: 0;
+/* --- Sensitivity slider: glass capsule + glossy knob, pinned bottom-left ---
+   --t is the knob position, 0 (Calm, bottom) to 1 (Lively, top).
+   --sens-pad and --sens-knob are mirrored in SensitivitySlider.jsx. */
+.sens {
+  --sens-h: 150px;
+  --sens-w: 36px;
+  --sens-pad: 5px;
+  --sens-knob: 26px;
+  --sens-travel: calc(var(--sens-h) - var(--sens-knob) - 2 * var(--sens-pad));
+  position: fixed;
+  left: var(--s4);
+  bottom: var(--s4);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  transition: opacity 240ms var(--ease-out);
+}
+
+.sens--fog {
+  --sens-ink: var(--text);
+  --sens-glass: linear-gradient(165deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0.2) 100%);
+  --sens-rim: rgba(255, 255, 255, 0.78);
+  --sens-rim-inner: rgba(255, 255, 255, 0.32);
+  --sens-depth: 0 8px 22px rgba(20, 52, 48, 0.24);
+  --sens-stop: rgba(255, 255, 255, 0.6);
+  --sens-knob-edge: rgba(255, 255, 255, 0.95);
+  --sens-knob-drop: 0 4px 12px rgba(20, 52, 48, 0.3);
+  --sens-ring: var(--text);
+}
+
+/* On the slide it stays quiet for the audience and wakes up under the pointer. */
+.sens--paper {
+  --sens-ink: var(--muted);
+  --sens-glass: linear-gradient(165deg, rgba(255, 255, 255, 0.9) 0%, rgba(31, 26, 20, 0.035) 60%, rgba(255, 255, 255, 0.7) 100%);
+  --sens-rim: rgba(31, 26, 20, 0.14);
+  --sens-rim-inner: rgba(255, 255, 255, 0.9);
+  --sens-depth: 0 6px 18px rgba(31, 26, 20, 0.08);
+  --sens-stop: rgba(31, 26, 20, 0.18);
+  --sens-knob-edge: var(--border);
+  --sens-knob-drop: 0 4px 10px rgba(31, 26, 20, 0.18);
+  --sens-ring: var(--brand-ink);
+  z-index: 3;
+  opacity: 0.55;
+}
+
+.sens--paper:hover,
+.sens--paper:focus-within,
+.sens--paper.is-dragging {
+  opacity: 1;
+}
+
+.sens-rail {
+  position: relative;
+  width: var(--sens-w);
+  height: var(--sens-h);
+  border-radius: 999px;
+  background: var(--sens-glass);
+  border: 1.5px solid var(--sens-rim);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -12px 20px rgba(255, 255, 255, 0.1),
+    var(--sens-depth);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+  overflow: hidden; /* keeps the moving glow inside the capsule */
+}
+
+.sens.is-dragging .sens-rail {
+  cursor: grabbing;
+}
+
+/* Second, inner rim and the soft specular glow along the top. */
+.sens-rail::before,
+.sens-rail::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+.sens-rail::before {
+  inset: 3px;
+  border: 1px solid var(--sens-rim-inner);
+}
+
+.sens-rail::before {
+  z-index: 2;
+}
+
+/* The glow rides with the knob: same --t, same easing, no lag while dragging. */
+.sens-rail::after {
+  left: 50%;
+  bottom: calc(var(--sens-pad) + var(--sens-knob) / 2);
+  width: calc(var(--sens-knob) * 2.4);
+  height: calc(var(--sens-knob) * 2.4);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.18) 38%, rgba(255, 255, 255, 0) 68%);
+  transform: translate(-50%, 50%) translateY(calc(var(--t) * var(--sens-travel) * -1));
+  transition: transform 460ms var(--ease-out);
+}
+
+.sens.is-dragging .sens-rail::after {
+  transition: none;
+}
+
+.sens-rail:focus-visible {
+  outline: 2px solid var(--sens-ring);
+  outline-offset: 3px;
+}
+
+.sens-stop {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--sens-pad) + var(--sens-knob) / 2 + var(--at) * var(--sens-travel));
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sens-stop);
+  transform: translate(-50%, 50%);
+}
+
+.sens-knob {
+  position: absolute;
+  left: 50%;
+  bottom: var(--sens-pad);
+  z-index: 1;
+  width: var(--sens-knob);
+  height: var(--sens-knob);
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #ffffff 0%, #f6f7fb 42%, #dfe2ea 100%);
+  border: 1.5px solid var(--sens-knob-edge);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.95),
+    inset 0 -4px 8px rgba(112, 122, 150, 0.22),
+    var(--sens-knob-drop);
+  transform: translateX(-50%) translateY(calc(var(--t) * var(--sens-travel) * -1)) scale(1);
+  transition: transform 460ms var(--ease-out), box-shadow 240ms var(--ease-out);
+}
+
+.sens.is-dragging .sens-knob {
+  transform: translateX(-50%) translateY(calc(var(--t) * var(--sens-travel) * -1)) scale(1.06);
+  transition: box-shadow 240ms var(--ease-out);
+}
+
+.sens-end {
+  display: grid;
+  place-items: center;
+  width: var(--sens-w);
+  height: 22px;
   padding: 0;
   border: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-  color: var(--color-text);
-}
-
-.sensitivity legend {
-  float: left;
-  margin-right: auto;
-  padding: 0 var(--s1);
-  color: var(--color-text-muted);
-}
-
-.sensitivity label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s2);
-  min-height: 36px;
-  padding: 0 var(--s3);
-  border: 1px solid var(--color-line);
   border-radius: 999px;
+  background: none;
+  color: var(--sens-ink);
   cursor: pointer;
-  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  opacity: 0.7;
+  transition: opacity 160ms var(--ease-out);
 }
 
-.sensitivity label:hover {
-  background: rgba(255, 255, 255, 0.12);
+.sens-end:hover {
+  opacity: 1;
 }
 
-.sensitivity label.on {
-  background: var(--color-glass);
-  border-color: var(--color-glow);
+.sens-end svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
-.sensitivity label:has(:focus-visible) {
-  outline: 2px solid var(--color-glow);
-  outline-offset: 2px;
-}
-
-.sensitivity input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.sensitivity kbd {
-  font-family: inherit;
-  color: var(--color-text-muted);
+@media (prefers-reduced-motion: reduce) {
+  .sens,
+  .sens-knob,
+  .sens-end {
+    transition: none;
+  }
 }
 
 /* --- Follow-up --- */

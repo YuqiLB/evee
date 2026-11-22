@@ -3,7 +3,7 @@ import { useStore, store } from '../state.js'
 import { SlideStage } from '../components/Slide.jsx'
 import { Toast } from '../components/Toast.jsx'
 import { Eyes } from '../components/Eyes.jsx'
-import { LEVELS, LEVEL_IDS } from '../lib/sensitivity.js'
+import { LEVEL_IDS } from '../lib/sensitivity.js'
 
 const MIC_ERROR = '[mic error message]'
 const AGENT_ERROR = '[agent error message]'
@@ -49,15 +49,14 @@ export function Pitch({ agent }) {
     store.setState({ screen: 'followup' })
   }
 
-  // Esc ends the pitch; 1 / 2 / 3 change the sensitivity live (Calm / Normal / Lively).
-  const [levelToast, setLevelToast] = useState({ at: 0, text: '' })
+  // Esc ends the pitch; 1 / 2 / 3 set the sensitivity (Calm / Normal / Lively).
+  // The slider in the corner shows the change, so there's no toast for it.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') return end()
       const id = LEVEL_IDS[Number(e.key) - 1]
       if (!id || e.ctrlKey || e.metaKey || e.altKey) return
       store.setState({ sensitivity: id })
-      setLevelToast({ at: Date.now(), text: `Sensitivity: ${LEVELS[id].label}` })
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -89,7 +88,6 @@ export function Pitch({ agent }) {
       )}
 
       <Toast at={toastAt} text="Noted for follow-up" />
-      <Toast at={levelToast.at} text={levelToast.text} />
     </main>
   )
 }

@@ -2,7 +2,6 @@
 import { useRef, useState } from 'react'
 import { store, useStore } from '../state.js'
 import { addToPack, extractFile, isSupported, factsChunks } from '../lib/context.js'
-import { SensitivityPicker } from '../components/SensitivityPicker.jsx'
 
 const FILE_ERROR = '[file error message]'
 
@@ -109,8 +108,6 @@ export function Setup() {
           </svg>
         </button>
       </div>
-
-      <SensitivityPicker />
     </main>
   )
 }
