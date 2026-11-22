@@ -17,6 +17,11 @@
           "type": "string",
           "description": "Slide title, at most 6 words, taken from the context pack."
         },
+        "layout": {
+          "type": "string",
+          "enum": ["title-bullets", "split", "big-stat", "image-focus", "statement", "three-up"],
+          "description": "How the slide is arranged. title-bullets: default, 1-3 points. split: points beside a matching image or one number. big-stat: the answer is one headline number (needs stat). image-focus: a screenshot or diagram says it best (needs imageId). statement: one bold claim, title only, no bullets. three-up: exactly 3 parallel items (needs 3 bullets)."
+        },
         "bullets": {
           "type": "array",
           "description": "0 to 3 bullets, each at most 12 words, each stated in the context pack.",

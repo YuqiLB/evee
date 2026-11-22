@@ -5,6 +5,7 @@ import { useSyncExternalStore } from 'react'
 
 const initial = {
   screen: 'setup', // 'setup' | 'pitch' | 'followup'
+  zooming: false, // true while Setup zooms into the fog before the pitch
   files: [], // {name, status: 'loading'|'ok'|'error', error?}
   facts: '',
   chunks: [], // ContextChunk {id, source, page, text}

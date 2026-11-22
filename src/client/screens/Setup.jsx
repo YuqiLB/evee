@@ -37,11 +37,12 @@ export function Setup() {
     }
   }
 
+  // Starts the zoom into the fog; App switches to the pitch when the zoom ends.
   function start() {
     const s = store.getState()
+    if (!ready || s.zooming) return
     console.log(`[context] starting with ${s.chunks.length + factsChunks(s.facts).length} text chunks, ${s.images.length} images`)
-    store.reset()
-    store.setState({ screen: 'pitch' })
+    store.setState({ zooming: true })
   }
 
   return (
@@ -93,14 +94,20 @@ export function Setup() {
           placeholder="[textbox placeholder]"
           value={facts}
           onChange={(e) => store.setState({ facts: e.target.value })}
+          onKeyDown={(e) => {
+            // Enter starts (like sending a message); Shift+Enter adds a line.
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              start()
+            }
+          }}
         />
-      </div>
-
-      {(files.length > 0 || facts.trim()) && (
-        <button className="primary" disabled={!ready} onClick={start}>
-          [start button label]
+        <button className="send" disabled={!ready} onClick={start} aria-label="[start button label]">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 3.5 10.5 8 6 12.5" />
+          </svg>
         </button>
-      )}
+      </div>
     </main>
   )
 }

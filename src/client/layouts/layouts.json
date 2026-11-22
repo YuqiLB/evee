@@ -1,0 +1,44 @@
+[
+  {
+    "id": "title-bullets",
+    "name": "Title and bullets",
+    "useWhen": "Default. A short explanation in 1 to 3 points, with no standout number or picture.",
+    "needs": { "bullets": "1-3", "stat": "no", "image": "no" },
+    "reference": "Slidev 'default' layout, https://sli.dev/builtin/layouts (MIT)"
+  },
+  {
+    "id": "split",
+    "name": "Split: points beside a picture or number",
+    "useWhen": "Points that a matching image or one number backs up.",
+    "needs": { "bullets": "1-3", "stat": "or image", "image": "or stat" },
+    "reference": "Slidev 'image-right' layout, https://sli.dev/builtin/layouts (MIT)"
+  },
+  {
+    "id": "big-stat",
+    "name": "Big number",
+    "useWhen": "The answer is one headline number: price, users, revenue, growth.",
+    "needs": { "bullets": "0-1", "stat": "yes", "image": "no" },
+    "reference": "Slidev 'fact' layout, https://sli.dev/builtin/layouts (MIT)"
+  },
+  {
+    "id": "image-focus",
+    "name": "Picture first",
+    "useWhen": "Showing beats telling: a product screenshot, a diagram, a chart page.",
+    "needs": { "bullets": "0-1", "stat": "no", "image": "yes" },
+    "reference": "WebSlides full-image slides, https://github.com/cmi-design/WebSlides (MIT)"
+  },
+  {
+    "id": "statement",
+    "name": "One-line statement",
+    "useWhen": "One bold claim, like the mission or what the product does in a sentence.",
+    "needs": { "bullets": "0", "stat": "no", "image": "no" },
+    "reference": "Slidev 'statement' layout, https://sli.dev/builtin/layouts (MIT)"
+  },
+  {
+    "id": "three-up",
+    "name": "Three side by side",
+    "useWhen": "Exactly three parallel items: three features, three steps, three customer types.",
+    "needs": { "bullets": "3", "stat": "no", "image": "no" },
+    "reference": "WebSlides column grids, https://github.com/cmi-design/WebSlides (MIT)"
+  }
+]

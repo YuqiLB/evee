@@ -71,6 +71,8 @@ export const toolHandlers = {
       at,
       trigger,
       title,
+      // What the agent asked for; <Slide> checks it fits before using it.
+      layout: String(args.layout ?? '').trim().toLowerCase() || null,
       bullets: toList(args.bullets).slice(0, 3).map((b) => capWords(b, 12)),
       stat: toStat(args.stat),
       imageId,

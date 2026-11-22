@@ -18,6 +18,9 @@
   --pad-bar: 24px;
   --size-bar: 15px;
   --size-label: 11px;
+  --size-send: 36px;
+  --zoom-duration: 1100ms;
+  --ease-zoom: cubic-bezier(0.7, 0, 0.84, 0);
   --track-label: 0.08em;
   --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, monospace;
@@ -103,6 +106,12 @@ a {
 }
 
 /* ========== Layout ========== */
+/* Wraps fog + Setup/Follow-up; a definite height keeps .setup's
+   min-height: 100% (vertical centring) working inside it. */
+.scene {
+  height: 100%;
+}
+
 .fog {
   position: fixed;
   inset: 0;
@@ -114,6 +123,59 @@ a {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Start → pitch: the camera pushes into the fog's glow, the setup content
+   rushes past, then a veil in the pitch's background colour closes the shot. */
+.scene.zooming .fog {
+  animation: zoom-fog var(--zoom-duration) var(--ease-zoom) forwards;
+}
+
+.scene.zooming .setup {
+  pointer-events: none;
+  animation: zoom-content calc(var(--zoom-duration) * 0.6) var(--ease-zoom) forwards;
+}
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: var(--bg);
+  animation: veil-in var(--zoom-duration) forwards;
+}
+
+@keyframes zoom-fog {
+  to {
+    transform: scale(4);
+  }
+}
+
+@keyframes zoom-content {
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+    filter: blur(8px);
+  }
+}
+
+@keyframes veil-in {
+  0%,
+  55% {
+    opacity: 0;
+    animation-timing-function: ease-in;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes veil-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .fog--fallback {
@@ -218,12 +280,9 @@ a {
   color: var(--color-text);
 }
 
-.glass:focus-within {
+/* Focus ring on the upload box only; the text box shows just its caret. */
+.dropbox:focus-visible {
   border-color: var(--color-glow);
-}
-
-.glass:focus-visible,
-.glass:has(:focus-visible) {
   outline: 2px solid var(--color-glow);
   outline-offset: 2px;
 }
@@ -251,12 +310,16 @@ a {
 
 .facts-box {
   height: var(--height-bar);
-  padding: 0 var(--pad-bar);
+  padding: 0 var(--s2) 0 var(--pad-bar);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
 }
 
 .facts {
   display: block;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   margin: 0;
   padding: var(--s3) 0;
@@ -277,6 +340,39 @@ a {
 
 .facts::placeholder {
   color: var(--color-text-muted);
+}
+
+/* Start arrow inside the text box: dim until there is something to pitch. */
+.send {
+  flex: none;
+  width: var(--size-send);
+  height: var(--size-send);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out);
+}
+
+.send:disabled {
+  cursor: default;
+}
+
+.send:not(:disabled) {
+  background: var(--brand);
+  color: var(--text);
+}
+
+.send:not(:disabled):hover {
+  background: var(--brand-strong);
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--color-glow);
+  outline-offset: 2px;
 }
 
 /* --- File list (sits on the fog) --- */
@@ -337,6 +433,81 @@ a {
 .slide-body.with-side {
   grid-template-columns: 1.4fr 1fr;
   align-items: center;
+}
+
+/* --- Slide layouts (see src/client/layouts/layouts.json) --- */
+.layout-title-bullets .slide-bullets { margin-top: 0; }
+
+.layout-split {
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+}
+
+.slide-kicker {
+  font-size: var(--t40);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--muted);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.slide-caption {
+  font-size: 28px;
+  line-height: 1.35;
+  color: var(--text);
+  margin: 0;
+  max-width: 28ch;
+}
+
+.layout-big-stat { justify-items: start; gap: var(--s4); }
+.slide-stat.slide-stat--big { text-align: left; }
+.slide-stat--big .slide-stat-value { font-size: 220px; line-height: 0.9; }
+.slide-stat--big .slide-stat-label { font-size: var(--t40); color: var(--text); margin-top: var(--s4); }
+
+.layout-image-focus {
+  grid-template-columns: 1fr 1.7fr;
+  align-items: center;
+  padding: 72px 80px;
+}
+.layout-image-focus-head { display: grid; gap: var(--s4); }
+.slide-image--focus { max-height: 560px; justify-self: end; }
+
+.layout-statement { gap: var(--s4); }
+.statement-rule { width: 96px; height: 8px; border-radius: 4px; background: var(--brand); }
+.slide-statement {
+  font-size: 104px;
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  margin: 0;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+.three-up-cols {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s5);
+}
+.three-up-cols li {
+  display: grid;
+  align-content: start;
+  gap: var(--s3);
+  padding-top: var(--s4);
+  border-top: 2px solid var(--border);
+  font-size: 30px;
+  line-height: 1.3;
+}
+.three-up-num {
+  font-size: var(--t24);
+  font-weight: 700;
+  color: var(--brand-ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .slide-blank {
@@ -622,6 +793,15 @@ a {
 
   .listening.on .eyes {
     animation: none;
+  }
+
+  .scene.zooming .fog,
+  .scene.zooming .setup {
+    animation: none;
+  }
+
+  .veil {
+    animation: veil-fade 200ms linear forwards;
   }
 
   .toast {
