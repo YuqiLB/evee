@@ -1,0 +1,77 @@
+[
+  {
+    "type": "client",
+    "name": "show_slide",
+    "description": "Put one slide on the screen that answers the question just asked or matches the new topic. Use ONLY facts from {{context_pack}}. Call it instead of speaking.",
+    "expects_response": false,
+    "response_timeout_secs": 1,
+    "parameters": {
+      "type": "object",
+      "required": ["trigger", "title", "bullets", "sourceIds"],
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "description": "The question or topic you heard, in the speaker's words, as one short sentence."
+        },
+        "title": {
+          "type": "string",
+          "description": "Slide title, at most 6 words, taken from the context pack."
+        },
+        "bullets": {
+          "type": "array",
+          "description": "0 to 3 bullets, each at most 12 words, each stated in the context pack.",
+          "items": { "type": "string", "description": "One bullet, at most 12 words." }
+        },
+        "stat": {
+          "type": "object",
+          "description": "Optional single headline number from the context pack. Omit if there is none.",
+          "properties": {
+            "value": { "type": "string", "description": "The number as shown, e.g. \"$49\" or \"18\"." },
+            "label": { "type": "string", "description": "What the number is, at most 5 words." }
+          }
+        },
+        "imageId": {
+          "type": "string",
+          "description": "Optional id of an image from the IMAGES list (e.g. \"i3\") that fits the slide. Omit if none fits."
+        },
+        "sourceIds": {
+          "type": "array",
+          "description": "Ids of the chunks and images the content came from, e.g. [\"c4\", \"i2\"].",
+          "items": { "type": "string", "description": "A chunk id (c…) or image id (i…)." }
+        }
+      }
+    }
+  },
+  {
+    "type": "client",
+    "name": "log_followup",
+    "description": "The context pack does not answer the question. Record it for the follow-up email instead of inventing an answer. Never show a slide for it.",
+    "expects_response": false,
+    "response_timeout_secs": 1,
+    "parameters": {
+      "type": "object",
+      "required": ["question"],
+      "properties": {
+        "question": { "type": "string", "description": "The question as asked, one sentence." }
+      }
+    }
+  },
+  {
+    "type": "client",
+    "name": "capture_email",
+    "description": "After the pitch ends and the visitor has confirmed their spelled-back email, save it with a short summary of the conversation.",
+    "expects_response": false,
+    "response_timeout_secs": 1,
+    "parameters": {
+      "type": "object",
+      "required": ["email", "summary"],
+      "properties": {
+        "email": { "type": "string", "description": "The confirmed email address, lowercase, no spaces." },
+        "summary": {
+          "type": "string",
+          "description": "Two or three sentences: what the visitor was interested in and what is still open."
+        }
+      }
+    }
+  }
+]
