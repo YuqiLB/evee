@@ -104,6 +104,7 @@ export const toolHandlers = {
 // ---- React hook: owns the live session
 export function useEveeAgent() {
   const conversation = useConversation({
+    volume: 0, // evee never speaks; this mutes it even if the LLM talks anyway
     onMessage: (m) => {
       const role = m.role ?? (m.source === 'ai' ? 'agent' : 'user')
       store.setState((s) => ({ transcript: [...s.transcript, { role, text: m.message, at: nowIso() }] }))

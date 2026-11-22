@@ -59,14 +59,13 @@
   {
     "type": "client",
     "name": "capture_email",
-    "description": "After the pitch ends and the visitor has confirmed their spelled-back email, save it with a short summary of the conversation.",
+    "description": "After you receive [pitch ended], save a short summary of the conversation. Never ask for the email; the visitor types it on screen.",
     "expects_response": false,
     "response_timeout_secs": 1,
     "parameters": {
       "type": "object",
-      "required": ["email", "summary"],
+      "required": ["summary"],
       "properties": {
-        "email": { "type": "string", "description": "The confirmed email address, lowercase, no spaces." },
         "summary": {
           "type": "string",
           "description": "Two or three sentences: what the visitor was interested in and what is still open."
