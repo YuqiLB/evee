@@ -7,7 +7,15 @@ import { callAction } from '../api.js'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // Sends everything collected in the browser to the server; returns the session id.
-async function persist(extra = {}) {
+// Calls are chained so two overlapping saves never create two Session rows.
+let queue = Promise.resolve()
+function persist(extra = {}) {
+  const run = queue.then(() => save(extra))
+  queue = run.catch(() => {})
+  return run
+}
+
+async function save(extra) {
   const s = store.getState()
   const { sessionId } = await callAction('saveSession', {
     sessionId: s.sessionId,
