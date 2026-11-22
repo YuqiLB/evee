@@ -31,6 +31,7 @@ export const store = {
     listeners.add(l)
     return () => listeners.delete(l)
   },
+  // New pitch: clear session data, keep the uploaded material.
   reset() {
     store.setState({ ...initial, files: state.files, facts: state.facts, chunks: state.chunks, images: state.images })
   },
