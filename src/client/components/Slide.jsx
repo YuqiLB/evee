@@ -2,6 +2,7 @@
 // Drawn on a 1280×720 canvas at SPEC sizes (title 64, bullets 32), then scaled
 // to fit the stage, so the layout is identical on a phone and a projector.
 import { useLayoutEffect, useRef, useState } from 'react'
+import { Eyes } from './Eyes.jsx'
 
 const W = 1280
 const H = 720
@@ -63,6 +64,7 @@ function Empty({ coverImage }) {
   if (coverImage) return <img className="slide-cover" src={coverImage.dataUrl} alt="" />
   return (
     <div className="slide-body slide-blank">
+      <Eyes size={160} className="slide-blank-eyes" />
       <h1 className="slide-title">evee</h1>
     </div>
   )

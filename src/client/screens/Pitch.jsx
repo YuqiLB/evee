@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useStore, store } from '../state.js'
 import { SlideStage } from '../components/Slide.jsx'
 import { Toast } from '../components/Toast.jsx'
+import { Eyes } from '../components/Eyes.jsx'
 
 const MIC_ERROR = '[mic error message]'
 const AGENT_ERROR = '[agent error message]'
@@ -61,7 +62,7 @@ export function Pitch({ agent }) {
       <SlideStage slide={slide} image={image} coverImage={coverImage} />
 
       <div className={`listening ${listening ? 'on' : ''}`} aria-live="polite">
-        <span className="dot" />
+        <Eyes size={22} className="eyes" />
         {listening ? '[listening label]' : connecting ? '[connecting label]' : null}
       </div>
 
