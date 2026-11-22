@@ -6,16 +6,26 @@ import { useConversation, useConversationClientTool } from '@elevenlabs/react'
 import { store, nowIso } from '../state.js'
 import { serializePack } from './context.js'
 import { callAction } from '../api.js'
+import { gateSlide, levelOf } from './sensitivity.js'
 
-export const DEDUPE_MS = 6000
+// A slide that arrived too soon after the last one (see sensitivity.js).
+// Only the newest is kept: a later one replaces it and restarts nothing.
+let waiting = null // { slide, timer }
 
-// SPEC: ignore a show_slide that arrives within 6 s of the last one, unless its
-// title is different. Returns true when the new slide should be rendered.
-export function shouldShowSlide(lastSlide, nextTitle, nowMs) {
-  if (!lastSlide) return true
-  const sameTitle = norm(lastSlide.title) === norm(nextTitle)
-  const tooSoon = nowMs - Date.parse(lastSlide.at) < DEDUPE_MS
-  return !(sameTitle && tooSoon)
+function clearWaiting() {
+  if (waiting) clearTimeout(waiting.timer)
+  waiting = null
+}
+
+// Puts a slide on screen, unless the pitch has ended or it's now a repeat.
+function putUp(slide) {
+  const s = store.getState()
+  if (s.screen !== 'pitch') return 'ignored: pitch is not running'
+  const last = s.slides[s.slides.length - 1]
+  const level = levelOf(s.sensitivity)
+  if (gateSlide(last, slide.title, Date.now(), level).action === 'skip') return 'ignored: same slide is already showing'
+  store.setState({ slides: [...s.slides, { ...slide, id: `s${s.slides.length + 1}`, at: nowIso() }] })
+  return 'shown'
 }
 
 // ---- tool argument cleanup (LLMs sometimes send arrays/objects as JSON strings)
@@ -42,7 +52,6 @@ function toStat(v) {
   if (!v || typeof v !== 'object' || !v.value) return null
   return { value: String(v.value), label: String(v.label ?? '') }
 }
-const norm = (s) => String(s ?? '').trim().toLowerCase()
 
 // ---- the client tools (also reachable from window.__evee in dev)
 export const toolHandlers = {
@@ -51,24 +60,13 @@ export const toolHandlers = {
     const at = nowIso()
     const trigger = String(args.trigger ?? '').trim()
     const title = String(args.title ?? '').trim()
-    const recordQuestion = trigger ? [{ role: 'question', text: trigger, at }] : []
-    if (!title) {
-      store.setState({ transcript: [...s.transcript, ...recordQuestion] })
-      return 'ignored: title is required'
-    }
-
-    const last = s.slides[s.slides.length - 1]
-    if (!shouldShowSlide(last, title, Date.now())) {
-      // Still keep the question for the follow-up email.
-      store.setState({ transcript: [...s.transcript, ...recordQuestion] })
-      return 'ignored: same slide is already showing'
-    }
+    // The question is kept for the follow-up email whatever happens to the slide.
+    if (trigger) store.setState({ transcript: [...s.transcript, { role: 'question', text: trigger, at }] })
+    if (!title) return 'ignored: title is required'
 
     const imageIds = new Set(s.images.map((i) => i.id))
     const imageId = imageIds.has(args.imageId) ? args.imageId : null
     const slide = {
-      id: `s${s.slides.length + 1}`,
-      at,
       trigger,
       title,
       // What the agent asked for; <Slide> checks it fits before using it.
@@ -78,8 +76,20 @@ export const toolHandlers = {
       imageId,
       sourceIds: toList(args.sourceIds),
     }
-    store.setState({ slides: [...s.slides, slide], transcript: [...s.transcript, ...recordQuestion] })
-    return 'shown'
+
+    const last = s.slides[s.slides.length - 1]
+    const gate = gateSlide(last, title, Date.now(), levelOf(s.sensitivity))
+    if (gate.action === 'skip') return 'ignored: same slide is already showing'
+    clearWaiting() // this slide is newer than anything waiting
+    if (gate.action === 'show') return putUp(slide)
+    waiting = {
+      slide,
+      timer: setTimeout(() => {
+        waiting = null
+        putUp(slide)
+      }, gate.waitMs),
+    }
+    return 'queued'
   },
 
   log_followup(args = {}) {
@@ -90,7 +100,8 @@ export const toolHandlers = {
     store.setState({
       openQuestions: [...s.openQuestions, { question, at }],
       transcript: [...s.transcript, { role: 'question', text: question, at }],
-      toastAt: Date.now(),
+      // Calm mode records the question but doesn't flash the toast.
+      ...(levelOf(s.sensitivity).toast ? { toastAt: Date.now() } : {}),
     })
     return 'noted'
   },

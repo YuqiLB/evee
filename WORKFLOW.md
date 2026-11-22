@@ -64,7 +64,7 @@ Target is under 5 seconds. The server is not in this path.
 | A clear move to a new topic | "Let's talk about pricing." | Shows a slide for that topic | `show_slide` |
 | A question the uploads do not answer | "Do you integrate with Salesforce?" | Shows "Noted for follow-up", logs it | `log_followup` |
 | Small talk, half sentences, more on the same topic | "Nice booth!" | Nothing | `skip_turn` |
-| The same slide again within 6 seconds | | Ignored by the browser | none |
+| The same slide again soon after (6 s on Normal) | | Ignored by the browser | none |
 | Founder ends the pitch (End button or Esc) | | evee stays silent and writes a short summary. The visitor types their email | `capture_email` |
 
 ## Screens

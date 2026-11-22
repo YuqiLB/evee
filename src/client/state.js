@@ -17,6 +17,7 @@ const initial = {
   email: '',
   summary: '',
   toastAt: 0, // timestamp of the last "Noted for follow-up"
+  sensitivity: 'normal', // 'calm' | 'normal' | 'lively', see lib/sensitivity.js
 }
 
 let state = initial
@@ -32,9 +33,9 @@ export const store = {
     listeners.add(l)
     return () => listeners.delete(l)
   },
-  // New pitch: clear session data, keep the uploaded material.
+  // New pitch: clear session data, keep the uploaded material and the sensitivity.
   reset() {
-    store.setState({ ...initial, files: state.files, facts: state.facts, chunks: state.chunks, images: state.images })
+    store.setState({ ...initial, files: state.files, facts: state.facts, chunks: state.chunks, images: state.images, sensitivity: state.sensitivity })
   },
 }
 
