@@ -2,7 +2,7 @@
   {
     "type": "client",
     "name": "show_slide",
-    "description": "Put one slide on the screen that answers the question just asked or matches the new topic. Use ONLY facts from {{context_pack}}. Call it instead of speaking.",
+    "description": "Put one slide on the screen that answers the question just asked or matches the new topic. Use ONLY facts from the context pack. Call it instead of speaking.",
     "expects_response": false,
     "response_timeout_secs": 1,
     "parameters": {
