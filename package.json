@@ -1,0 +1,30 @@
+{
+  "name": "evee",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c blue,green \"node --watch-path=server --watch-path=src/server server/index.js\" \"vite\"",
+    "build": "vite build",
+    "db:migrate": "prisma migrate dev"
+  },
+  "prisma": {
+    "schema": "schema.prisma"
+  },
+  "dependencies": {
+    "@alter-ai/alter-sdk": "^0.34.1",
+    "@elevenlabs/react": "^1.23.1",
+    "@prisma/client": "^6.19.3",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "pdfjs-dist": "^6.5.438",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "concurrently": "^10.0.7",
+    "prisma": "^6.19.3",
+    "vite": "^8.3.8"
+  }
+}

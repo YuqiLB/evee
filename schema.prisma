@@ -1,0 +1,21 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// One pitch session. Slides / open questions live in browser memory during the
+// pitch and are saved here when it ends (SPEC: "browser memory, then server").
+model Session {
+  id            String   @id @default(uuid())
+  startedAt     DateTime @default(now())
+  transcript    Json     @default("[]") // {role, text, at}[]
+  slides        Json     @default("[]") // Slide[]
+  openQuestions Json     @default("[]") // OpenQuestion[]
+  email         String?
+  summary       String   @default("")
+  status        String   @default("draft") // "draft" | "held" | "sent" | "failed"
+}
